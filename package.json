@@ -13,7 +13,7 @@
     },
     "devDependencies": {
         "browser-sync": "^2.18.12",
-        "gulp": "^3.9.1",
+        "gulp": "^5.0.0",
         "gulp-protractor": "^4.1.0",
         "gulp-typescript": "^2.13.0",
         "jasmine": "^2.6.0",
