@@ -1,71 +1,55 @@
 'use strict';
 
-var gulp = require('gulp');
+const gulp = require('gulp');
+const browserSync = require('browser-sync').create('Essential JS 2');
+const ts = require('gulp-typescript');
+const protractor = require('gulp-protractor').protractor;
+const webdriver_standalone = require('gulp-protractor').webdriver_standalone;
+const webdriver_update = require('gulp-protractor').webdriver_update_specific;
 
-/**
- * Load the sample in src/app/index
- */
-gulp.task('start', ['compile'], function(done) {
-    var browserSync = require('browser-sync');
-    var bs = browserSync.create('Essential JS 2');
-    var options = {
+// Function to report changes
+function reportChanges(path) {
+    console.log(`File changed: ${path}`);
+    browserSync.reload();
+}
+
+// Compile TypeScript files
+function compileTask() {
+    const tsProject = ts.createProject('tsconfig.json', { typescript: require('typescript') });
+    return gulp.src(['./src/**/*.ts'], { base: '.' })
+        .pipe(tsProject())
+        .pipe(gulp.dest('./'))
+        .on('error', (e) => {
+            console.error('Compilation error:', e.message);
+            process.exit(1);
+        });
+}
+
+// Start task with BrowserSync
+function startTask(done) {
+    const options = {
         server: {
             baseDir: ['./src', './']
         },
         ui: false
     };
-    bs.init(options, done);
-
-    /**
-    * Watching typescript file changes
-    */
-    gulp.watch('src/**/*.ts', ['compile', bs.reload]).on('change', reportChanges);
-});
-
-/** 
- * Compile TypeScript to JS
- */
-gulp.task('compile', function(done) {
-    var ts = require('gulp-typescript');
-    // Default typescript config
-    var defaultConfig = {
-        typescript: require('typescript')
-    };
-    var tsProject, tsResult;
-    // Create the typescript project
-    tsProject = ts.createProject('tsconfig.json', defaultConfig);
-    // Get typescript result
-    tsResult = gulp.src(['./src/**/*.ts'], { base: '.' })
-        .pipe(ts(tsProject))
-        .pipe(gulp.dest('./'))
-        .on('error', function(e) {
-            done(e);
-            process.exit(1);
-        }).on('end', function() {
-            done();
-        });
-});
-
-function reportChanges(event) {
-    console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    browserSync.init(options, done);
+    gulp.watch('src/**/*.ts', gulp.series(compileTask)).on('change', reportChanges);
 }
-/**
- * Testing spec files
- */
-var protractor = require('gulp-protractor').protractor;
-var webdriver_standalone = require('gulp-protractor').webdriver_standalone;
-var webdriver_update = require('gulp-protractor').webdriver_update_specific;
 
-gulp.task('e2e-serve', webdriver_standalone);
+// E2E testing tasks
+function e2eServeTask() {
+    return webdriver_standalone();
+}
 
-gulp.task('e2e-webdriver-update', webdriver_update({
-    webdriverManagerArgs: ['--ie', '--edge']
-}));
+function e2eWebdriverUpdateTask(done) {
+    return webdriver_update({
+        webdriverManagerArgs: ['--ie', '--edge']
+    })(done);
+}
 
-gulp.task('e2e-test', ['compile'], function(done) {
-    var browserSync = require('browser-sync');
-    var bs = browserSync.create('Essential JS 2');
-    var options = {
+function e2eTestTask(done) {
+    const options = {
         server: {
             baseDir: [
                 './src/app/',
@@ -78,19 +62,26 @@ gulp.task('e2e-test', ['compile'], function(done) {
         open: false,
         notify: false
     };
-    bs.init(options, function() {
+    browserSync.init(options, () => {
         gulp.src(['./spec/**/*.spec.js'])
-            .pipe(protractor({
-                configFile: 'e2e/protractor.conf.js'
-            }))
-            .on('error', function(e) {
-                console.error('Error: ' + e.message);
-                done();
+            .pipe(protractor({ configFile: 'e2e/protractor.conf.js' }))
+            .on('error', (e) => {
+                console.error('Error:', e.message);
                 process.exit(1);
             })
-            .on('end', function() {
+            .on('end', () => {
                 done();
                 process.exit(0);
             });
     });
-});
+}
+
+// Gulp task definitions
+gulp.task('compile', compileTask);
+gulp.task('start', gulp.series('compile', startTask));
+gulp.task('e2e-serve', e2eServeTask);
+gulp.task('e2e-webdriver-update', e2eWebdriverUpdateTask);
+gulp.task('e2e-test', gulp.series('compile', e2eTestTask));
+
+// Default task
+exports.default = gulp.series('start');

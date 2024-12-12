@@ -12,9 +12,9 @@
         "@syncfusion/ej2": "*"
     },
     "devDependencies": {
-        "browser-sync": "^2.18.12",
+        "browser-sync": "3.0.3",
         "gulp": "*",
-        "gulp-protractor": "*",
+        "gulp-protractor": "4.1.0",
         "gulp-typescript": "*",
         "jasmine": "^2.6.0",
         "systemjs": "^0.20.14",

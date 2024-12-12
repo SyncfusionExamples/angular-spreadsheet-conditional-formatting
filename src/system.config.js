@@ -2,7 +2,6 @@ System.config({
     paths: {
         'npm:': './../node_modules/',
         'syncfusion:': './../node_modules/@syncfusion/'
-
     },
     map: {
         app: 'app',
@@ -23,6 +22,8 @@ System.config({
         "@syncfusion/ej2-excel-export": "syncfusion:ej2-excel-export/dist/ej2-excel-export.umd.min.js",
         "@syncfusion/ej2-pdf-export": "syncfusion:ej2-pdf-export/dist/ej2-pdf-export.umd.min.js",
         "@syncfusion/ej2-grids": "syncfusion:ej2-grids/dist/ej2-grids.umd.min.js",
+        "@syncfusion/ej2-notifications": "syncfusion:ej2-notifications/dist/ej2-notifications.umd.min.js",
+        "@syncfusion/ej2-svg-base": "syncfusion:ej2-svg-base/dist/ej2-svg-base.umd.min.js",
         "@syncfusion/ej2-dropdowns": "syncfusion:ej2-dropdowns/dist/ej2-dropdowns.umd.min.js",
         "@syncfusion/ej2-querybuilder": "syncfusion:ej2-querybuilder/dist/ej2-querybuilder.umd.min.js",
         "@syncfusion/ej2-spreadsheet": "syncfusion:ej2-spreadsheet/dist/ej2-spreadsheet.umd.min.js"
