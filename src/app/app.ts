@@ -48,7 +48,9 @@ let spreadsheet: Spreadsheet = new Spreadsheet({
         {
             width: 73
         }]
-    },],
+    }],
+    openUrl: 'https://services.syncfusion.com/js/production/api/spreadsheet/open',
+    saveUrl: 'https://services.syncfusion.com/js/production/api/spreadsheet/save',
     created: () => {
         spreadsheet.merge('A1:H1');
         spreadsheet.cellFormat({ fontWeight: 'bold', textAlign: 'center' }, 'A2:H2');
