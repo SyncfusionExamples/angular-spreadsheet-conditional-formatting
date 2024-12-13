@@ -14,7 +14,7 @@
     "devDependencies": {
         "browser-sync": "3.0.3",
         "gulp": "*",
-        "gulp-protractor": "4.1.0",
+        "gulp-protractor": "*",
         "gulp-typescript": "*",
         "jasmine": "^2.6.0",
         "systemjs": "^0.20.14",
