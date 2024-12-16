@@ -1,11 +1,11 @@
 import { Spreadsheet } from '@syncfusion/ej2-spreadsheet';
-import { conditionalFormatData } from './conditional-formatting-data';
+import { conditionalFormatData } from './../resources/conditional-formatting-data';
 
 /**
  * Conditional Formatting
  */
-//Initialize Spreadsheet component.
-let spreadsheet: Spreadsheet = new Spreadsheet({
+// Initialize Spreadsheet component.
+const spreadsheet: Spreadsheet = new Spreadsheet({
     sheets: [{
         rows: [{
             height: 31,
@@ -71,4 +71,3 @@ let spreadsheet: Spreadsheet = new Spreadsheet({
 });
 //Render initialized Spreadsheet component
 spreadsheet.appendTo('#element');
-
