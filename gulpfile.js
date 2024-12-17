@@ -1,60 +1,42 @@
 'use strict';
 
-const gulp = require('gulp');
-const browserSync = require('browser-sync').create('Essential JS 2');
-const ts = require('gulp-typescript');
-const protractor = require('gulp-protractor').protractor;
-const webdriver_standalone = require('gulp-protractor').webdriver_standalone;
-const webdriver_update = require('gulp-protractor').webdriver_update_specific;
+var gulp = require('gulp');
 
-// Function to report changes
-function reportChanges(path) {
-    console.log(`File changed: ${path}`);
-    browserSync.reload();
-}
-
-// Compile TypeScript files
-function compileTask() {
-    const tsProject = ts.createProject('tsconfig.json', { typescript: require('typescript') });
-    return gulp.src(['./src/**/*.ts'], { base: '.' })
-        .pipe(tsProject())
-        .pipe(gulp.dest('./'))
-        .on('error', (e) => {
-            console.error('Compilation error:', e.message);
-            process.exit(1);
+/** 
+ * Compile TypeScript to JS
+ */
+gulp.task('compile', function (done) {
+    var webpack = require('webpack');
+    var webpackStream = require('webpack-stream');
+    gulp.src(['./src/app/app.ts']).pipe(webpackStream({
+        config: require('./webpack.config.js')
+    }, webpack))
+        .pipe(gulp.dest('./dist'))
+        .on('end', function () {
+            done();
         });
-}
+});
 
-// Start task with BrowserSync
-function startTask(done) {
-    const options = {
-        server: {
-            baseDir: ['./src', './']
-        },
-        ui: false
-    };
-    browserSync.init(options, done);
-    gulp.watch('src/**/*.ts', gulp.series(compileTask)).on('change', reportChanges);
-}
+/**
+ * Testing spec files
+ */
+var protractor = require('gulp-protractor').protractor;
+var webdriver_standalone = require('gulp-protractor').webdriver_standalone;
+var webdriver_update = require('gulp-protractor').webdriver_update_specific;
 
-// E2E testing tasks
-function e2eServeTask() {
-    return webdriver_standalone();
-}
+gulp.task('e2e-serve', webdriver_standalone);
 
-function e2eWebdriverUpdateTask(done) {
-    return webdriver_update({
-        webdriverManagerArgs: ['--ie', '--edge']
-    })(done);
-}
+gulp.task('e2e-webdriver-update', webdriver_update({
+    webdriverManagerArgs: ['--ie', '--edge']
+}));
 
-function e2eTestTask(done) {
-    const options = {
+gulp.task('e2e-test', gulp.series('compile', function (done) {
+    var browserSync = require('browser-sync');
+    var bs = browserSync.create('Essential JS 2');
+    var options = {
         server: {
             baseDir: [
-                './src/app/',
-                './src/resource/',
-                './node_modules/@syncfusion/ej2/'
+                './dist/',
             ],
             directory: true
         },
@@ -62,26 +44,19 @@ function e2eTestTask(done) {
         open: false,
         notify: false
     };
-    browserSync.init(options, () => {
+    bs.init(options, function () {
         gulp.src(['./spec/**/*.spec.js'])
-            .pipe(protractor({ configFile: 'e2e/protractor.conf.js' }))
-            .on('error', (e) => {
-                console.error('Error:', e.message);
+            .pipe(protractor({
+                configFile: 'e2e/protractor.conf.js'
+            }))
+            .on('error', function (e) {
+                console.error('Error: ' + e.message);
+                done();
                 process.exit(1);
             })
-            .on('end', () => {
+            .on('end', function () {
                 done();
                 process.exit(0);
             });
     });
-}
-
-// Gulp task definitions
-gulp.task('compile', compileTask);
-gulp.task('start', gulp.series('compile', startTask));
-gulp.task('e2e-serve', e2eServeTask);
-gulp.task('e2e-webdriver-update', e2eWebdriverUpdateTask);
-gulp.task('e2e-test', gulp.series('compile', e2eTestTask));
-
-// Default task
-exports.default = gulp.series('start');
+}));
