@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "ajv": "^8.11.2",
-    "browser-sync": "^2.18.12",
+    "browser-sync": "3.0.3",
     "gulp": "*",
     "typescript": "*",
-    "gulp-protractor": "*",
+    "gulp-protractor": "4.1.0",
     "gulp-typescript": "*",
     "jasmine": "^2.6.0",
     "css-loader": "^6.7.2",
